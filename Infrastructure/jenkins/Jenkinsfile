@@ -73,7 +73,7 @@ pipeline {
                 }
             }
         }
-        stage('Build Helm Package when in main') {
+        stage('Build Helm Package  when in main') {
             when {
                 branch 'main'
             }
