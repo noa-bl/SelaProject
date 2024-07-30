@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, make_response
 from pymongo import MongoClient
 import secrets
 from bson import ObjectId
@@ -81,44 +81,34 @@ def newPost():
 def likePost():
     post_id = request.form.get('post_id')
     username = session.get('username')
-
     if not post_id or not username:
-        return "Post ID or username not found", 404
-
-    post = Posts.find_one({'_id': ObjectId(post_id)})
-
-    if username in post.get('likes', []):
-        Posts.update_one({'_id': ObjectId(post_id)}, {'$pull': {'likes': username}})
-        app.logger.info(f"User {username} unliked post {post_id}")
-        return "unliked", 200
+        return "Invalid request", 404
     else:
-        Posts.update_one({'_id': ObjectId(post_id)}, {'$addToSet': {'likes': username}})
-        app.logger.info(f"User {username} liked post {post_id}")
-        return "liked", 200
+        post = Posts.find_one({'_id': ObjectId(post_id)})
+        if post:
+            if username not in post['likes']:
+                Posts.update_one({'_id': ObjectId(post_id)}, {'$addToSet': {'likes': username}})
+            else:
+                Posts.update_one({'_id': ObjectId(post_id)}, {'$pull': {'likes': username}})
+            return 'success'
+        else:
+            return 'invalid request', 400
 
 @app.route('/allPosts')
 def allPosts():
-    posts = Posts.find()
-    return render_template('allPosts.html', posts_list=list(posts))
+    posts = list(Posts.find())
+    return render_template('allPosts.html', posts_list=posts)
 
 @app.route('/getUpdatedPosts')
 def getUpdatedPosts():
     username = session.get('username')
-    postsNum = Posts.count_documents({'username': username})
-    user_posts = Posts.find({'username': username}, {'title': 1, 'content': 1, 'likes': 1, '_id': 1})
-    user_posts_list = [
-        {
-            '_id': str(post['_id']),
-            'title': post['title'],
-            'content': post['content'],
-            'likes': post['likes']
-        } for post in user_posts
-    ]
-    return jsonify({
-        'username': username,
-        'postsNum': postsNum,
-        'user_posts_list': user_posts_list
-    }), 200
+    user_posts = list(Posts.find({'username': username}, {'title': 1, 'content': 1, 'likes': 1, '_id': 1}))
+    posts_num = len(user_posts)
+    return {
+        'postsNum': posts_num,
+        'user_posts_list': user_posts
+    }
 
+    
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -70,7 +70,7 @@ def test_login_success(client):
 
 from unittest.mock import patch, MagicMock
 
-def test_new_post(client):
+def test_newPost(client):
     # Mocking the behavior inside the newPost function instead of the function itself
     with patch('app.Posts.find_one') as mock_find_one, \
          patch('app.Posts.insert_one') as mock_insert_one, \

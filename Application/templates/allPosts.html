@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>All Posts</title>
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <main>
-    <h1>All Posts</h1>
+    <h1>All Posts:</h1>
     <ul>
         {% for post in posts_list %}
             <li>Title: {{ post.title }} | Content: {{ post.content }}</li>
