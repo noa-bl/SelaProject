@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 from pymongo import MongoClient
 import secrets
 from bson import ObjectId
+import logging
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = secrets.token_hex(16)
@@ -11,6 +12,9 @@ client = MongoClient("mongodb://myUserAdmin:changeme@mongo:27017/?authSource=adm
 db = client.Project
 Users = db.Users
 Posts = db.Posts
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
 
 @app.route(rule='/', methods=['GET', 'POST'])
 def index():
@@ -30,6 +34,7 @@ def index():
             else:
                 return "Failed Login", 200
         except Exception as e:
+            app.logger.error(f"Can't connect to MongoDB: {e}")
             return f"Can't connect to MongoDB: {e}", 500
 
 @app.route(rule='/signup', methods=['GET', 'POST'])
@@ -47,6 +52,7 @@ def signup():
                 Users.insert_one({'username': username, 'password': password})
                 return render_template('userPage.html', username=username, postsNum=0, user_posts_list=[]), 200
         except Exception as e:
+            app.logger.error(f"Error: {e}")
             return f"Error: {e}", 500
 
 @app.route(rule='/newPost', methods=['GET', 'POST'])
@@ -72,7 +78,7 @@ def newPost():
             user_posts = Posts.find({'username': username}, {'title': 1, 'content': 1, 'likes': 1, '_id': 1})
             postsNum = Posts.count_documents({'username': username})
             user_posts_list = list(user_posts)
-            return render_template('userPage.html', username=username, postsNum=postsNum, user_posts_list=user_posts_list), 200
+            return redirect(url_for('userPage')), 200
         except Exception as e:
             app.logger.error(f"Error creating post: {e}")
             return f"Error: {e}", 500
@@ -90,14 +96,27 @@ def likePost():
                 Posts.update_one({'_id': ObjectId(post_id)}, {'$addToSet': {'likes': username}})
             else:
                 Posts.update_one({'_id': ObjectId(post_id)}, {'$pull': {'likes': username}})
-            return 'success'
+            return jsonify({"status": "success"})
         else:
             return 'invalid request', 400
 
+@app.route('/userPage')
+def userPage():
+    username = session.get('username')
+    if not username:
+        return redirect(url_for('index'))
+    user_posts = list(Posts.find({'username': username}, {'title': 1, 'content': 1, 'likes': 1, '_id': 1}))
+    postsNum = len(user_posts)
+    return render_template('userPage.html', username=username, postsNum=postsNum, user_posts_list=user_posts)
+
 @app.route('/allPosts')
 def allPosts():
-    posts = list(Posts.find())
-    return render_template('allPosts.html', posts_list=posts)
+    try:
+        posts = list(Posts.find())
+        return render_template('allPosts.html', posts_list=posts)
+    except Exception as e:
+        app.logger.error(f"Error fetching posts: {e}")
+        return f"Error fetching posts: {e}", 500
 
 @app.route('/getUpdatedPosts')
 def getUpdatedPosts():
@@ -109,6 +128,5 @@ def getUpdatedPosts():
         'user_posts_list': user_posts
     }
 
-    
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

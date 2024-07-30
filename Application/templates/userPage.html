@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>User Page</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="../static/style.css">
 </head>
 <body>
 <main>
-    <h1>Hi {{username}} number of posts: <span id="postsNum">{{ postsNum }}</span> </h1>
+    <h1>Hi {{username}}, number of posts: <span id="postsNum">{{ postsNum }}</span> </h1>
     <h2>User Posts:</h2>
     <ul id="user_posts_list">
         {% for post in user_posts_list %}
@@ -35,9 +35,9 @@
             },
             body: 'post_id=' + encodeURIComponent(postId)
         })
-        .then(response => response.text())
+        .then(response => response.json())
         .then(data => {
-            if (data === 'success') {
+            if (data.status === 'success') {
                 return fetch('/getUpdatedPosts');
             } else {
                 throw new Error(data);
