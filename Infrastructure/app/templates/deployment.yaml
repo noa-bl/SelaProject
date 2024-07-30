@@ -1,21 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "finals-chart.fullname" . }}-myapp
-  labels:
-    app: {{ include "finals-chart.name" . }}-myapp
+  name: posts-app
+  namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ include "finals-chart.name" . }}-myapp
+      app: posts-app
   template:
     metadata:
       labels:
-        app: {{ include "finals-chart.name" . }}-myapp
+        app: posts-app
     spec:
       containers:
-      - name: myapp
+      - name: posts-app
         image: {{ .Values.myapp.image.repository }}
         ports:
         - containerPort: {{ .Values.myapp.port }}

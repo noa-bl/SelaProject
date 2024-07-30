@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-init
+  namespace: default
+data:
+  init.sh: |
+    #!/bin/bash
+    echo "Running MongoDB initialization script..."
+
+    mongod --bind_ip_all --fork --logpath /var/log/mongodb.log
+
+    sleep 10
+
+    echo "Creating admin user..."
+    mongosh --host 127.0.0.1 --port 27017 <<EOF
+    use admin
+    db.createUser({
+      user: "$MONGO_INITDB_ROOT_USERNAME",
+      pwd: "$MONGO_INITDB_ROOT_PASSWORD",
+      roles: [{ role: "root", db: "admin" }]
+    })
+    EOF
+
+    echo "Running application initialization script..."
+    mongosh --host 127.0.0.1 --port 27017 -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin <<EOF
+    const projectDB = db.getSiblingDB('Project');
+    projectDB.createCollection('Users');
+    projectDB.Users.insertMany([
+      {username: "Noa", password: '1123'},
+      {username: "Mai", password: '2123'}
+    ]);
+
+    projectDB.createCollection('Posts');
+    projectDB.Posts.insertMany([
+      {username: "Noa", _title: "one", content: "this info noa", likes: '[]'},
+      {username: "Mai", _title: "one", content: "this info mai", likes: '[]'},
+      {username: "Noa", _title: "two", content: "this info noa2", likes: '[]'}
+    ]);
+    EOF
+
+    echo "Initialization complete. Keeping MongoDB running..."
+    tail -f /var/log/mongodb.log
