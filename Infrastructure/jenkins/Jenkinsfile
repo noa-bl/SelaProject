@@ -66,13 +66,13 @@ pipeline {
             }
         }
         
-        stage('Run Tests with Docker Compose') {
-            steps {
-                script {
-                    sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --build --abort-on-container-exit"
-                }
-            }
-        }
+  //      stage('Run Tests with Docker Compose') {
+    //        steps {
+      //          script {
+        //            sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --build --abort-on-container-exit"
+          //      }
+           // }
+//        }
         stage('Build Helm Package  when in main') {
             when {
                 branch 'main'

@@ -21,3 +21,5 @@ spec:
         env:
         - name: MONGODB_URI
           value: {{ .Values.myapp.environment.MONGODB_URI }}
+      imagePullSecrets:
+        - name: dockerhub-secret
