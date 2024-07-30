@@ -1,0 +1,14 @@
+mongo:
+  image: mongo:latest
+  hostname: mongo
+  namespace: default
+  environment:
+    MONGO_INITDB_ROOT_USERNAME: myUserAdmin
+    MONGO_INITDB_ROOT_PASSWORD: changeme
+
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 50

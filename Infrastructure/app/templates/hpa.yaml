@@ -4,17 +4,15 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 
 metadata:
-  name: {{ include "finals-chart.fullname" . }}-myapp-hpa
-  namespace: {{ .Release.Namespace }}
+  name: myapp-hpa
+  namespace: default
   labels:
-    app: {{ include "finals-chart.name" . }}
+    app: myapp-hpa
 spec:
-#specifies the target deployment for this HPA scale.
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    #name for deployment:
-    name: {{ include "finals-chart.fullname" . }}-myapp
+    name: myapp-hpa
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:
@@ -22,7 +20,6 @@ spec:
       resource:
         name: cpu
         target:
-        #targets a percentage of CPU utilization
           type: Utilization
-          averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
+          averageUtilization: 50
     {{- end }}
