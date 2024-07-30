@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>User Page</title>
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <main>
@@ -11,8 +11,11 @@
     <h2>User Posts:</h2>
     <ul id="user_posts_list">
         {% for post in user_posts_list %}
-            <li> Title:{{ post.title }}| Content: {{ post.content }} 
-                <button onclick="likePost('{{ post._id }}')">like (likes: {{ post.likes | length}})</button>
+            <li> 
+                <div>
+                    Title: {{ post.title }}<br>Content: {{ post.content }}
+                </div>
+                <button onclick="likePost('{{ post._id }}')">Like (likes: {{ post.likes | length }})</button>
             </li>
         {% endfor %}
     </ul>
@@ -25,7 +28,6 @@
 </main>
 <script>
     function likePost(postId) {
-        console.log('Post ID:', postId);
         fetch('/likePost', {
             method: 'POST',
             headers: {
@@ -33,16 +35,13 @@
             },
             body: 'post_id=' + encodeURIComponent(postId)
         })
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(text => { throw new Error(text) });
-            }
-            return response.text();
-        })
+        .then(response => response.text())
         .then(data => {
-            console.log('Response from server:', data);
-            alert('ok: ' + data);
-            return fetch('/getUpdatedPosts');
+            if (data === 'success') {
+                return fetch('/getUpdatedPosts');
+            } else {
+                throw new Error(data);
+            }
         })
         .then(response => response.json())
         .then(data => {
@@ -56,23 +55,15 @@
 
     function updatePageContent(data) {
         const postsNumElement = document.getElementById('postsNum');
-        if (postsNumElement) {
-            postsNumElement.innerText = data.postsNum;
-        } else {
-            console.error("Element with ID 'postsNum' not found.");
-        }
+        postsNumElement.innerText = data.postsNum;
 
         const userPostsList = document.getElementById('user_posts_list');
-        if (userPostsList) {
-            userPostsList.innerHTML = '';
-            data.user_posts_list.forEach(post => {
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `Title: ${post.title} | Content: ${post.content}  <button onclick="likePost('${post._id}')">Like (${post.likes.length})</button>`;
-                userPostsList.appendChild(listItem);
-            });
-        } else {
-            console.error("Element with ID 'user_posts_list' not found.");
-        }
+        userPostsList.innerHTML = '';
+        data.user_posts_list.forEach(post => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `<div>Title: ${post.title}<br>Content: ${post.content}</div> <button onclick="likePost('${post._id}')">Like (${post.likes.length})</button>`;
+            userPostsList.appendChild(listItem);
+        });
     }
 </script>
 </body>
