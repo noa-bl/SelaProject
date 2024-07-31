@@ -154,7 +154,7 @@ pipeline {
                 sh """
                 export HELM_EXPERIMENTAL_OCI=1
                 echo \$DOCKER_PASSWORD | helm registry login docker.io -u noabl --password-stdin
-                helm push ${WORKSPACE}/${CHART_NAME}-${CHART_VERSION}.tgz oci://docker.io/noabl
+                helm push ${WORKSPACE}/${CHART_NAME}-${CHART_VERSION}.tgz oci://docker.io/noabl/postsAppChart
                 """
                 }
                 }
