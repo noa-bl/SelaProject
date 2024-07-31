@@ -78,33 +78,8 @@ pipeline {
                 }
             }
         }
-        stage('Generate Redeploy Hash') {
-            steps {
-                script {
-                    // Generate a new redeploy hash using date and time
-                    def redeployHash = sh(script: 'date +%s', returnStdout: true).trim()
-                    echo "Generated redeployHash: ${redeployHash}"
-            
-                    // Update the deployment.yaml file with the new redeploy-hash
-                    sh """
-                    sed -i 's/redeployhash: .*/redeployhash: "${redeployHash}"/' ${WORKSPACE}/${CHART_PATH}/templates/deployment.yaml
-                    """
-            
-                    // Validate the updated template with Helm
-                    sh "helm template ${WORKSPACE}/${CHART_PATH}"
-                }
-            }
-        }
-        stage('Build Helm Package  when in main') {
-            when {
-                branch 'main'
-            }
-            steps {
-                script {
-                    sh "helm package ${WORKSPACE}/${CHART_PATH} --version ${CHART_VERSION} --destination ${WORKSPACE}"
-                }
-            }
-        }
+
+
         stage('Create Merge Request') {
             when {
                 not {
@@ -137,12 +112,34 @@ pipeline {
                     expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
                 }
             }
-            steps {
+                      steps {
                 script {
-                    docker.build("${DOCKER_IMAGE}:latest", "-f ${APPLICATION_DIR}/dockerfile ${APPLICATION_DIR}")
+                    // Generate a unique tag using date and time
+                    def imageTag = sh(script: 'date +%Y%m%d%H%M%S', returnStdout: true).trim()
+                    echo "Generated image tag: ${imageTag}"
+
+                    // Build the Docker image with the unique tag
+                    docker.build("${DOCKER_IMAGE}:${imageTag}", "-f ${APPLICATION_DIR}/dockerfile ${APPLICATION_DIR}")
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
+                        docker.image("${DOCKER_IMAGE}:${imageTag}").push()
                         docker.image("${DOCKER_IMAGE}:latest").push()
                     }
+
+                    // Update the values.yaml file with the new image tag
+                    sh """
+                    sed -i 's|repository: .*|repository: noabl/flask-app:${imageTag}|' ${WORKSPACE}/${CHART_PATH}/values.yaml
+                    """
+                    
+                }
+            }
+        }
+        stage('Build Helm Package  when in main') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    sh "helm package ${WORKSPACE}/${CHART_PATH} --version ${CHART_VERSION} --destination ${WORKSPACE}"
                 }
             }
         }

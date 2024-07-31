@@ -17,8 +17,6 @@ spec:
     metadata:
       labels:
         app: posts-app
-      annotations:
-        redeployhash: "test"
     spec:
       containers:
       - name: posts-app
