@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: docker.io/noabl
     targetRevision: 0.1.2
-    chart: finals-chart
+    chart: posts-app-chart
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: default

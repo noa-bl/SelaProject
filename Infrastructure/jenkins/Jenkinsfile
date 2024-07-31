@@ -18,8 +18,10 @@ pipeline {
         GITHUB_API_URL = 'https://api.github.com'
         EMAIL_RECIPIENTS = 'noablfdev@gmail.com'
         EMAIL_CREDENTIALS = credentials('email-cred')
-        HELM_REPO = 'noabl/helm-charts'
         HELM_EXPERIMENTAL_OCI = '1' // Enable OCI support for Helm
+        CHART_PATH = 'Infrastructure/app'
+        CHART_NAME = 'posts-app-chart'
+        CHART_VERSION = '0.1.2'
     }
     stages {
         stage('Checkout SCM') {
@@ -73,14 +75,28 @@ pipeline {
                 }
             }
         }
+        stage('Update Redeploy Hash') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    // Generate a new redeploy-hash
+                    def redeployHash = sh(script: 'date +%s', returnStdout: true).trim()
+                    // Update the values.yaml file with the new redeploy-hash
+                    sh """
+                    sed -i 's/redeploy-hash:.*/redeploy-hash: "${redeployHash}"/' ${WORKSPACE}/${CHART_PATH}/values.yaml
+                    """
+                }
+            }
+        }
         stage('Build Helm Package  when in main') {
             when {
                 branch 'main'
             }
             steps {
                 script {
-                    // Correct the path to your Helm chart directory
-                    sh "helm package ${WORKSPACE}/Infrastructure/app --version 0.1.2"
+                    sh "helm package ${WORKSPACE}/${CHART_PATH} --version ${CHART_VERSION} --destination ${WORKSPACE}"
                 }
             }
         }
@@ -135,7 +151,7 @@ pipeline {
                 sh """
                 export HELM_EXPERIMENTAL_OCI=1
                 echo \$DOCKER_PASSWORD | helm registry login docker.io -u noabl --password-stdin
-                helm push /home/jenkins/agent/workspace/multibranch-pipeline_main/finals-chart-0.1.2.tgz oci://docker.io/noabl
+                helm push ${WORKSPACE}/${CHART_NAME}-${CHART_VERSION}.tgz oci://docker.io/noabl
                 """
                 }
                 }
