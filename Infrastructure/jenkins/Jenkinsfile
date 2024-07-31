@@ -141,13 +141,8 @@ pipeline {
                 }
             }
         }
-        stage('Rolling Restart Kubernetes Deployment') {
-        steps {
-            script {
-                sh "kubectl rollout restart deployment/posts-app -n default"
-            }
-    }
-}
+        
+
     }
     post {
         failure {
