@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: posts-app
+  name: postsapp
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: posts-app
+      app: postsapp
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -16,12 +16,12 @@ spec:
   template:
     metadata:
       labels:
-        app: posts-app
+        app: postsApp
       annotations:
         redeployhash: "{{ .Values.redeployhash }}"
     spec:
       containers:
-      - name: posts-app
+      - name: postsApp
         image: "{{ .Values.myapp.image.repository }}"
         imagePullPolicy: Always
         ports:
