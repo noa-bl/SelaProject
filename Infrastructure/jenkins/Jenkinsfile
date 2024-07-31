@@ -21,7 +21,7 @@ pipeline {
         HELM_EXPERIMENTAL_OCI = '1' // Enable OCI support for Helm
         CHART_PATH = 'Infrastructure/app'
         CHART_NAME = 'posts-app-chart'
-        CHART_VERSION = '0.1.2'
+        CHART_VERSION = '0.1.3'
     }
     stages {
         stage('Checkout SCM') {
@@ -78,17 +78,19 @@ pipeline {
                 }
             }
         }
-                stage('Generate Redeploy Hash') {
+        stage('Generate Redeploy Hash') {
             steps {
                 script {
                     // Generate a new redeploy hash using date and time
                     def redeployHash = sh(script: 'date +%s', returnStdout: true).trim()
                     echo "Generated redeployHash: ${redeployHash}"
-                    
-                    // Update the values.yaml file with the new redeploy-hash
+            
+                    // Update the deployment.yaml file with the new redeploy-hash
                     sh """
-                    sed -i 's/redeployhash:.*/redeployhash: "${redeployHash}"/' ${WORKSPACE}/${CHART_PATH}/values.yaml
+                    sed -i 's/redeployhash: .*/redeployhash: "${redeployHash}"/' ${WORKSPACE}/${CHART_PATH}/templates/deployment.yaml
                     """
+            
+                    // Validate the updated template with Helm
                     sh "helm template ${WORKSPACE}/${CHART_PATH}"
                 }
             }
@@ -154,7 +156,7 @@ pipeline {
                 sh """
                 export HELM_EXPERIMENTAL_OCI=1
                 echo \$DOCKER_PASSWORD | helm registry login registry-1.docker.io -u noabl --password-stdin
-                helm push /home/jenkins/agent/workspace/multibranch-pipeline_main/posts-app-chart-0.1.2.tgz oci://registry-1.docker.io/noabl/
+                helm push /home/jenkins/agent/workspace/multibranch-pipeline_main/posts-app-chart-0.1.3.tgz oci://registry-1.docker.io/noabl/
                 """
                 }
                 }
