@@ -126,7 +126,7 @@ pipeline {
 
                     // Update the values.yaml file with the new image tag
                     sh """
-                    sed -i 's|image: .*|image: noabl/flask-app:${imageTag}|' ${WORKSPACE}/${CHART_PATH}/templates/deployment.yaml
+                    sed -i 's|repository: .*|repository: noabl/flask-app:${imageTag}|' ${WORKSPACE}/${CHART_PATH}/templates/values.yaml
                     helm template ${CHART_NAME} ${WORKSPACE}/${CHART_PATH}
                     """
                     

@@ -3,6 +3,8 @@ myapp:
   environment:
     MONGODB_URI: mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin
   port: 5000
+  image:
+    repository: noabl/flask-app:latest
 
 autoscaling:
   enabled: true
