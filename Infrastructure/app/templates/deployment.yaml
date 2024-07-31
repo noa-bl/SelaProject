@@ -22,10 +22,10 @@ spec:
     spec:
       containers:
       - name: posts-app
-        image: {{ .Values.myapp.image.repository }}
+        image: "{{ .Values.myapp.image.repository }}"
         imagePullPolicy: Always
         ports:
         - containerPort: {{ .Values.myapp.port }}
         env:
         - name: MONGODB_URI
-          value: {{ .Values.myapp.environment.MONGODB_URI }}
+          value: "{{ .Values.myapp.environment.MONGODB_URI }}"

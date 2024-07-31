@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default  
   source:
-    repoURL: docker.io/noabl
+    repoURL: docker.io/noabl/posts-app-repo
     targetRevision: 0.1.2
     chart: posts-app-chart
   destination:
