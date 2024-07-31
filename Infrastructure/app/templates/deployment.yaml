@@ -18,14 +18,14 @@ spec:
       labels:
         app: postsApp
       annotations:
-        redeployhash: "{{ .Values.redeployhash }}"
+        redeployhash: "{{ .Values.redeployHash }}"
     spec:
       containers:
       - name: postsApp
         image: "{{ .Values.myapp.image.repository }}"
         imagePullPolicy: Always
         ports:
-        - containerPort: {{ .Values.myapp.port }}
+        - containerPort: "{{ .Values.myapp.port }}"
         env:
         - name: MONGODB_URI
           value: "{{ .Values.myapp.environment.MONGODB_URI }}"
