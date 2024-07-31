@@ -4,15 +4,15 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 
 metadata:
-  name: posts-app
+  name: postsApp
   namespace: default
   labels:
-    app: posts-app
+    app: postsApp
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: posts-app
+    name: postsApp
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:
