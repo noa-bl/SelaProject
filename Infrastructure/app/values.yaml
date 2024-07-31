@@ -11,3 +11,4 @@ autoscaling:
   enabled: true
   minReplicas: 1
   maxReplicas: 3
+redeploy-hash: ""
