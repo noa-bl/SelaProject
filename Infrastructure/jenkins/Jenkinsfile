@@ -20,7 +20,7 @@ pipeline {
         EMAIL_CREDENTIALS = credentials('email-cred')
         HELM_EXPERIMENTAL_OCI = '1' // Enable OCI support for Helm
         CHART_PATH = 'Infrastructure/app'
-        CHART_NAME = 'posts-app-chart'
+        CHART_NAME = 'postsAppChart'
         CHART_VERSION = '0.1.2'
     }
     stages {
