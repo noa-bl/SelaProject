@@ -154,7 +154,7 @@ pipeline {
                 sh """
                 export HELM_EXPERIMENTAL_OCI=1
                 echo \$DOCKER_PASSWORD | helm registry login registry-1.docker.io -u noabl --password-stdin
-                helm push /home/jenkins/agent/workspace/multibranch-pipeline_main/posts-app-chart-0.1.2.tgz oci://registry-1.docker.io/noabl/posts-app-chart
+                helm push /home/jenkins/agent/workspace/multibranch-pipeline_main/posts-app-chart-0.1.2.tgz oci://registry-1.docker.io/noabl/
                 """
                 }
                 }
