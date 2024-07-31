@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: postsapp
+  name: posts-app
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postsapp
+      app: posts-app
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -16,16 +16,16 @@ spec:
   template:
     metadata:
       labels:
-        app: postsApp
+        app: posts-app
       annotations:
-        redeployhash: "{{ .Values.redeployHash }}"
+        redeployhash: "test"
     spec:
       containers:
-      - name: postsApp
-        image: "{{ .Values.myapp.image.repository }}"
+      - name: posts-app
+        image: {{ .Values.myapp.image.repository }}
         imagePullPolicy: Always
         ports:
-        - containerPort: "{{ .Values.myapp.port }}"
+        - containerPort: {{ .Values.myapp.port }}
         env:
         - name: MONGODB_URI
-          value: "{{ .Values.myapp.environment.MONGODB_URI }}"
+          value: {{ .Values.myapp.environment.MONGODB_URI }}
