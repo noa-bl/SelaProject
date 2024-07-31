@@ -115,14 +115,13 @@ pipeline {
                       steps {
                 script {
                     // Generate a unique tag using date and time
-                    def imageTag = sh(script: 'date +%Y%m%d%H%M%S', returnStdout: true).trim()
+                    def imageTag = sh(script: 'date +%M%S', returnStdout: true).trim()
                     echo "Generated image tag: ${imageTag}"
 
                     // Build the Docker image with the unique tag
                     docker.build("${DOCKER_IMAGE}:${imageTag}", "-f ${APPLICATION_DIR}/dockerfile ${APPLICATION_DIR}")
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
                         docker.image("${DOCKER_IMAGE}:${imageTag}").push()
-                        docker.image("${DOCKER_IMAGE}:latest").push()
                     }
 
                     // Update the values.yaml file with the new image tag
