@@ -20,7 +20,7 @@ pipeline {
         EMAIL_CREDENTIALS = credentials('email-cred')
         HELM_EXPERIMENTAL_OCI = '1' // Enable OCI support for Helm
         CHART_PATH = 'Infrastructure/app'
-        CHART_NAME = 'postsAppChart'
+        CHART_NAME = 'posts-app-chart'
         CHART_VERSION = '0.1.2'
     }
     stages {
@@ -154,7 +154,7 @@ pipeline {
                 sh """
                 export HELM_EXPERIMENTAL_OCI=1
                 echo \$DOCKER_PASSWORD | helm registry login registry-1.docker.io -u noabl --password-stdin
-                helm push /home/jenkins/agent/workspace/multibranch-pipeline_main/postsAppChart-0.1.2.tgz oci://registry-1.docker.io/noabl/postsAppChart
+                helm push /home/jenkins/agent/workspace/multibranch-pipeline_main/posts-app-chart-0.1.2.tgz oci://registry-1.docker.io/noabl/posts-app-chart
                 """
                 }
                 }
