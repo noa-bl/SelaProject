@@ -69,6 +69,9 @@ pipeline {
         }
         
         stage('Run Tests with Docker Compose') {
+            when{
+                branch 'main'
+            }
             steps {
                 script {
                     sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --build --abort-on-container-exit"
@@ -86,13 +89,6 @@ pipeline {
                     sh """
                     sed -i 's/redeploy-hash:.*/redeploy-hash: "${redeployHash}"/' ${WORKSPACE}/${CHART_PATH}/values.yaml
                     """
-
-                    // Output the updated values.yaml to the logs for verification
-                    sh "cat ${WORKSPACE}/${CHART_PATH}/values.yaml"
-
-                    // Render the Helm template and output the relevant section to logs
-                    sh "helm template ${WORKSPACE}/${CHART_PATH} > rendered-template.yaml"
-                    sh "cat rendered-template.yaml | grep -A 10 'redeploy-hash'"
                 }
             }
         }
