@@ -78,14 +78,15 @@ pipeline {
         stage('Generate Redeploy Hash') {
             steps {
                 script {
-                    // Generate a new redeploy-hash using Unix timestamp
-                    def redeployHash = sh(script: 'date +%s', returnStdout: true).trim()
-                    // Update the values.yaml file with the new redeploy-hash
+                    // Generate a new UUID for redeploy-hash
+                    def redeployHash = sh(script: 'uuidgen', returnStdout: true).trim()
+                    echo "Generated redeployHash: ${redeployHash}"
                     sh """
-                    sed -i 's/redeploy-hash:.*/redeploy-hash: "${redeployHash}"/' ${WORKSPACE}/${CHART_PATH}/values.yaml
+                    sed -i 's/redeploy-hash:.*/redeploy-hash: \\"${redeployHash}\\"/' ${WORKSPACE}/${CHART_PATH}/values.yaml
                     """
-                    // Render the Helm template and output to logs
-                    sh "helm template ${WORKSPACE}/${CHART_PATH}"
+                    sh "cat ${WORKSPACE}/${CHART_PATH}/values.yaml"
+                    sh "helm template ${WORKSPACE}/${CHART_PATH} > rendered-template.yaml"
+                    sh "cat rendered-template.yaml"
                 }
             }
         }
