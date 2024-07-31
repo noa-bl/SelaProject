@@ -66,13 +66,13 @@ pipeline {
             }
         }
         
-  //      stage('Run Tests with Docker Compose') {
-    //        steps {
-      //          script {
-        //            sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --build --abort-on-container-exit"
-          //      }
-           // }
-//        }
+        stage('Run Tests with Docker Compose') {
+            steps {
+                script {
+                    sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --build --abort-on-container-exit"
+                }
+            }
+        }
         stage('Build Helm Package  when in main') {
             when {
                 branch 'main'
@@ -118,9 +118,9 @@ pipeline {
             }
             steps {
                 script {
+                    docker.build("${DOCKER_IMAGE}:latest", "-f ${APPLICATION_DIR}/dockerfile ${APPLICATION_DIR}")
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
-                        sh "docker tag ${DOCKER_IMAGE}:temp ${DOCKER_IMAGE}:${VERSION}"
-                        sh "docker push ${DOCKER_IMAGE}:${VERSION}"
+                        docker.image("${DOCKER_IMAGE}:latest").push()
                     }
                 }
             }
