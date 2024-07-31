@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: posts-app
-        image: {{ .Values.myapp.image.repository }}
+        image: noabl/flask-app:latest
         imagePullPolicy: Always
         ports:
         - containerPort: {{ .Values.myapp.port }}
