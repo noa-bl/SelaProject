@@ -18,7 +18,7 @@ spec:
       labels:
         app: posts-app
       annotations:
-        redeploy-hash: "{{ .Values.redeploy-hash }}"
+        redeployhash: "{{ .Values.redeployhash }}"
     spec:
       containers:
       - name: posts-app

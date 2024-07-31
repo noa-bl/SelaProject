@@ -69,20 +69,22 @@ pipeline {
         }
         
         stage('Run Tests with Docker Compose') {
+            when{
+                branch 'main'
+            }
             steps {
                 script {
                     sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --build --abort-on-container-exit"
                 }
             }
         }
-      stage('Generate Redeploy Hash') {
-            when{
-                branch 'main'
-            }
+                stage('Generate Redeploy Hash') {
             steps {
                 script {
-                    // Generate a new redeploy-hash using Unix timestamp
+                    // Generate a new redeploy-hash using date and time
                     def redeployHash = sh(script: 'date +%s', returnStdout: true).trim()
+                    echo "Generated redeployHash: ${redeployHash}"
+                    
                     // Update the values.yaml file with the new redeploy-hash
                     sh """
                     sed -i 's/redeploy-hash:.*/redeploy-hash: "${redeployHash}"/' ${WORKSPACE}/${CHART_PATH}/values.yaml
