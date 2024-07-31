@@ -6,7 +6,6 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=myUserAdmin
       - MONGO_INITDB_ROOT_PASSWORD=changeme
-      - MONGODB_URI=mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin
     ports:
       - "27017:27017"
     volumes:
@@ -17,10 +16,7 @@ services:
     
 
   myapp:
-  #  image: noabl/flask-app:temp
-    build:
-      context: .
-      dockerfile: dockerfile
+    image: noabl/flask-app:temp
     ports:
       - "5000:5000"
     environment:

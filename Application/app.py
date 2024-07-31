@@ -2,19 +2,16 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 from pymongo import MongoClient
 import secrets
 from bson import ObjectId
-import logging
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = secrets.token_hex(16)
 
-# Initialize MongoDB client outside the route to avoid reconnecting on each request
+# Initialize MongoDB client
 client = MongoClient("mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin")
 db = client.Project
 Users = db.Users
 Posts = db.Posts
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
 
 @app.route(rule='/', methods=['GET', 'POST'])
 def index():
@@ -96,7 +93,7 @@ def likePost():
                 Posts.update_one({'_id': ObjectId(post_id)}, {'$addToSet': {'likes': username}})
             else:
                 Posts.update_one({'_id': ObjectId(post_id)}, {'$pull': {'likes': username}})
-            return jsonify({"status": "success"})
+            return 'success'
         else:
             return 'invalid request', 400
 
@@ -122,11 +119,14 @@ def allPosts():
 def getUpdatedPosts():
     username = session.get('username')
     user_posts = list(Posts.find({'username': username}, {'title': 1, 'content': 1, 'likes': 1, '_id': 1}))
+    for post in user_posts:
+        post['_id'] = str(post['_id'])
+        post['likes'] = list(post['likes'])   
     posts_num = len(user_posts)
-    return {
+    return jsonify({
         'postsNum': posts_num,
         'user_posts_list': user_posts
-    }
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

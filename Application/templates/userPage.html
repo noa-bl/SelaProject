@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>User Page</title>
-    <link rel="stylesheet" href="../static/style.css">
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 <main>
@@ -35,9 +35,9 @@
             },
             body: 'post_id=' + encodeURIComponent(postId)
         })
-        .then(response => response.json())
+        .then(response => response.text())
         .then(data => {
-            if (data.status === 'success') {
+            if (data === 'success') {
                 return fetch('/getUpdatedPosts');
             } else {
                 throw new Error(data);
@@ -64,7 +64,8 @@
             listItem.innerHTML = `<div>Title: ${post.title}<br>Content: ${post.content}</div> <button onclick="likePost('${post._id}')">Like (${post.likes.length})</button>`;
             userPostsList.appendChild(listItem);
         });
-    }
+    }   
+
 </script>
 </body>
 </html>
