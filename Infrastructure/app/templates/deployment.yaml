@@ -17,6 +17,8 @@ spec:
     metadata:
       labels:
         app: posts-app
+      annotations:
+        redeploy-hash: "{{ now | date }}"
     spec:
       containers:
       - name: posts-app
