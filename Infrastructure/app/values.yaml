@@ -1,7 +1,6 @@
-
 # myapp values
 myapp:
-  image: 
+  image:
     repository: noabl/flask-app:latest
   environment:
     MONGODB_URI: mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin
@@ -11,4 +10,5 @@ autoscaling:
   enabled: true
   minReplicas: 1
   maxReplicas: 3
+
 redeploy-hash: ""
