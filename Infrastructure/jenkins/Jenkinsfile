@@ -89,6 +89,7 @@ pipeline {
                     sh """
                     sed -i 's/redeployhash:.*/redeployhash: "${redeployHash}"/' ${WORKSPACE}/${CHART_PATH}/values.yaml
                     """
+                    sh "helm template ${WORKSPACE}/${CHART_PATH}"
                 }
             }
         }
