@@ -82,7 +82,7 @@ pipeline {
             steps {
                 script {
                     // Generate a new redeploy-hash using Unix timestamp
-                    def redeployHash = sh(script: 'uuidgen', returnStdout: true).trim()
+                    def redeployHash = sh(script: 'date +%s', returnStdout: true).trim()
                     echo "Generated redeployHash: ${redeployHash}"
                     // Update the values.yaml file with the new redeploy-hash
                     sh """
