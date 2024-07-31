@@ -76,16 +76,20 @@ pipeline {
             }
         }
         stage('Generate Redeploy Hash') {
+            //when{
+          //      branch 'main'
+        //    }
             steps {
                 script {
-                    // Generate a new UUID for redeploy-hash
+                    // Generate a new redeploy-hash using Unix timestamp
                     def redeployHash = sh(script: 'uuidgen', returnStdout: true).trim()
                     echo "Generated redeployHash: ${redeployHash}"
+                    // Update the values.yaml file with the new redeploy-hash
                     sh """
                     sed -i 's/redeploy-hash:.*/redeploy-hash: \\"${redeployHash}\\"/' ${WORKSPACE}/${CHART_PATH}/values.yaml
                     """
-                    sh "cat ${WORKSPACE}/${CHART_PATH}/values.yaml"
-                    sh "helm template ${WORKSPACE}/${CHART_PATH} > rendered-template.yaml"
+                    // Render the Helm template and output to logs
+                    sh "helm template ${WORKSPACE}/${CHART_PATH}"
                     sh "cat rendered-template.yaml"
                 }
             }
