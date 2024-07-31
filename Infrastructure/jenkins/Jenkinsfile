@@ -75,10 +75,7 @@ pipeline {
                 }
             }
         }
-      stage('Generate Redeploy Hash') {
-            when{
-                branch 'main'
-            }
+        stage('Generate Redeploy Hash') {
             steps {
                 script {
                     // Generate a new redeploy-hash using Unix timestamp
@@ -87,6 +84,8 @@ pipeline {
                     sh """
                     sed -i 's/redeploy-hash:.*/redeploy-hash: "${redeployHash}"/' ${WORKSPACE}/${CHART_PATH}/values.yaml
                     """
+                    // Render the Helm template and output to logs
+                    sh "helm template ${WORKSPACE}/${CHART_PATH}"
                 }
             }
         }
