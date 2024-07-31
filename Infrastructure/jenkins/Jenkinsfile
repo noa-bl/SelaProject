@@ -81,13 +81,13 @@ pipeline {
                 stage('Generate Redeploy Hash') {
             steps {
                 script {
-                    // Generate a new redeploy-hash using date and time
+                    // Generate a new redeploy hash using date and time
                     def redeployHash = sh(script: 'date +%s', returnStdout: true).trim()
                     echo "Generated redeployHash: ${redeployHash}"
                     
                     // Update the values.yaml file with the new redeploy-hash
                     sh """
-                    sed -i 's/redeploy-hash:.*/redeploy-hash: "${redeployHash}"/' ${WORKSPACE}/${CHART_PATH}/values.yaml
+                    sed -i 's/redeployhash:.*/redeployhash: "${redeployHash}"/' ${WORKSPACE}/${CHART_PATH}/values.yaml
                     """
                 }
             }
