@@ -3,17 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <title>All Posts</title>
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <main>
     <h1>All Posts:</h1>
     <ul>
         {% for post in posts_list %}
-            <li>Title: {{ post.title }} | Content: {{ post.content }}</li>
+            <li>
+                <div>Title: {{ post.title }} | Content: {{ post.content }}</div>
+            <button onclick="likePost('{{ post._id }}')">Like (likes: {{ post.likes | length }})</button>
+            </li>
         {% endfor %}
     </ul>
     <a href="{{ url_for('userPage') }}">Back to User Page</a>
 </main>
+<script>
+    function likePost(postId) {
+        fetch('/likePost', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'post_id=' + encodeURIComponent(postId)
+        })
+        .then(response => response.text())
+        .then(data => {
+            if (data === 'success') {
+                const action = data.action;
+                return fetch('/getUpdatedPosts').then(response => response.json()).then(data => {
+                updatePageContent(data, action, postId);
+            });
+        }
+            else {
+                throw new Error(data);
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            updatePageContent(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error: ' + error.message);
+        });
+    }
+
+    function updatePageContent(data, action, postId) {
+        const postsNumElement = document.getElementById('postsNum');
+        postsNumElement.innerText = data.postsNum;
+        const userPostsList = document.getElementById('user_posts_list');
+        userPostsList.innerHTML = '';
+        data.user_posts_list.forEach(post => {
+            const listItem = document.createElement('li');
+            let likeButtonText;
+            if (post._id === postId) {
+            likeButtonText = action === 'liked' ? 'Unlike' : 'Like';
+            } else {
+            likeButtonText = post.user_liked ? 'Unlike' : 'Like';
+            }
+            listItem.innerHTML = `<div>Title: ${post.title}<br>Content: ${post.content}</div> <button onclick="likePost('${post._id}')">${likeButtonText} (${post.likes.length})</button>`;
+        userPostsList.appendChild(listItem);
+    });
+}
+
+</script>
 </body>
 </html>

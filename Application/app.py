@@ -75,7 +75,7 @@ def newPost():
             user_posts = Posts.find({'username': username}, {'title': 1, 'content': 1, 'likes': 1, '_id': 1})
             postsNum = Posts.count_documents({'username': username})
             user_posts_list = list(user_posts)
-            return redirect(url_for('userPage')), 200
+            return redirect(url_for('userPage'))
         except Exception as e:
             app.logger.error(f"Error creating post: {e}")
             return f"Error: {e}", 500
@@ -91,8 +91,10 @@ def likePost():
         if post:
             if username not in post['likes']:
                 Posts.update_one({'_id': ObjectId(post_id)}, {'$addToSet': {'likes': username}})
+                action = 'liked'
             else:
                 Posts.update_one({'_id': ObjectId(post_id)}, {'$pull': {'likes': username}})
+                action = 'unliked'
             return 'success'
         else:
             return 'invalid request', 400

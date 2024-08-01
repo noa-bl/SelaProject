@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>User Page</title>
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <main>
@@ -38,8 +38,12 @@
         .then(response => response.text())
         .then(data => {
             if (data === 'success') {
-                return fetch('/getUpdatedPosts');
-            } else {
+                const action = data.action;
+                return fetch('/getUpdatedPosts').then(response => response.json()).then(data => {
+                updatePageContent(data, action, postId);
+            });
+        }
+            else {
                 throw new Error(data);
             }
         })
@@ -53,18 +57,23 @@
         });
     }
 
-    function updatePageContent(data) {
+    function updatePageContent(data, action, postId) {
         const postsNumElement = document.getElementById('postsNum');
         postsNumElement.innerText = data.postsNum;
-
         const userPostsList = document.getElementById('user_posts_list');
         userPostsList.innerHTML = '';
         data.user_posts_list.forEach(post => {
             const listItem = document.createElement('li');
-            listItem.innerHTML = `<div>Title: ${post.title}<br>Content: ${post.content}</div> <button onclick="likePost('${post._id}')">Like (${post.likes.length})</button>`;
-            userPostsList.appendChild(listItem);
-        });
-    }   
+            let likeButtonText;
+            if (post._id === postId) {
+            likeButtonText = action === 'liked' ? 'Unlike' : 'Like';
+            } else {
+            likeButtonText = post.user_liked ? 'Unlike' : 'Like';
+            }
+            listItem.innerHTML = `<div>Title: ${post.title}<br>Content: ${post.content}</div> <button onclick="likePost('${post._id}')">${likeButtonText} (${post.likes.length})</button>`;
+        userPostsList.appendChild(listItem);
+    });
+}
 
 </script>
 </body>
