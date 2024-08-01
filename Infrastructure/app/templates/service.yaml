@@ -3,10 +3,7 @@ kind: Service
 metadata:
   name: posts-app
   namespace: default
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "30113"
-    prometheus.io/path: "/metrics"
+
   labels:
     app: posts-app
 spec:

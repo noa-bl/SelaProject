@@ -1,12 +1,18 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
+  name: posts-app-monitor
+  namespace: monitoring
   labels:
-  name: posts-app
-  namespace: default
+    app: posts-app
 spec:
-  endpoints:
-  - interval: 30s
   selector:
     matchLabels:
       app: posts-app
+  namespaceSelector:
+    matchNames:
+      - default
+  endpoints:
+    - port: "80"
+      path: /metrics
+      interval: 15s

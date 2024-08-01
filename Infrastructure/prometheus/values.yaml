@@ -2,4 +2,4 @@ prometheus:
   prometheusSpec:
     serviceMonitorSelector:
       matchLabels:
-        k8s-apps: http
+        app: posts-app
