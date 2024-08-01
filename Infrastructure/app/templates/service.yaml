@@ -7,6 +7,8 @@ metadata:
     prometheus.io/scrape: "true"
     prometheus.io/port: "30113"
     prometheus.io/path: "/metrics"
+  labels:
+    app: posts-app
 spec:
   type: NodePort 
   selector: 
