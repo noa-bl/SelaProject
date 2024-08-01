@@ -52,7 +52,7 @@ def signup():
             app.logger.error(f"Error: {e}")
             return f"Error: {e}", 500
 
-@app.route(rule='/newPost', methods=['GET', 'POST'])
+@app.route('/newPost', methods=['GET', 'POST'])
 def newPost():
     if request.method == 'GET':
         return render_template('newPost.html')
@@ -63,23 +63,20 @@ def newPost():
 
         if not title or not content or not username:
             app.logger.error("Title, content, or username not provided")
-            return "Title, content, or username not provided", 400
+            return jsonify({"status": "error", "message": "Title, content, or username not provided"}), 400
 
         existing_post = Posts.find_one({'username': username, 'title': title})
         if existing_post:
             app.logger.info(f"Post already exists for user {username} with title {title}")
-            return "Post already exists", 400
+            return jsonify({"status": "error", "message": "Post already exists"}), 400
 
         try:
             Posts.insert_one({'username': username, 'title': title, 'content': content, 'likes': []})
-            user_posts = Posts.find({'username': username}, {'title': 1, 'content': 1, 'likes': 1, '_id': 1})
-            postsNum = Posts.count_documents({'username': username})
-            user_posts_list = list(user_posts)
-            return redirect(url_for('userPage'))
+            return jsonify({"status": "success"}), 200
         except Exception as e:
             app.logger.error(f"Error creating post: {e}")
-            return f"Error: {e}", 500
-
+            return jsonify({"status": "error", "message": str(e)}), 500
+        
 @app.route(rule='/likePost', methods=['POST'])
 def likePost():
     post_id = request.form.get('post_id')
@@ -95,9 +92,10 @@ def likePost():
             else:
                 Posts.update_one({'_id': ObjectId(post_id)}, {'$pull': {'likes': username}})
                 action = 'unliked'
-            return 'success'
+            return jsonify({"status": "success", "action": action})
         else:
-            return 'invalid request', 400
+            return "Invalid request", 400
+
 
 @app.route('/userPage')
 def userPage():
