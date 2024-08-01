@@ -65,14 +65,9 @@ def newPost():
             app.logger.error("Title, content, or username not provided")
             return jsonify({"status": "error", "message": "Title, content, or username not provided"}), 400
 
-        existing_post = Posts.find_one({'username': username, 'title': title})
-        if existing_post:
-            app.logger.info(f"Post already exists for user {username} with title {title}")
-            return jsonify({"status": "error", "message": "Post already exists"}), 400
-
         try:
             Posts.insert_one({'username': username, 'title': title, 'content': content, 'likes': []})
-            return jsonify({"status": "success"}), 200
+            return redirect(url_for('userPage'))
         except Exception as e:
             app.logger.error(f"Error creating post: {e}")
             return jsonify({"status": "error", "message": str(e)}), 500

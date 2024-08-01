@@ -1,0 +1,12 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+  name: posts-app
+  namespace: default
+spec:
+  endpoints:
+  - interval: 30s
+  selector:
+    matchLabels:
+      app: posts-app
