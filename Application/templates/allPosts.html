@@ -12,56 +12,66 @@
         {% for post in posts_list %}
             <li>
                 <div>Title: {{ post.title }} | Content: {{ post.content }}</div>
-            <button onclick="likePost('{{ post._id }}')">Like (likes: {{ post.likes | length }})</button>
+                <button onclick="likePost('{{ post._id }}')">Like (likes: {{ post.likes | length }})</button>
             </li>
         {% endfor %}
     </ul>
     <a href="{{ url_for('userPage') }}">Back to User Page</a>
 </main>
-.then(response => {
-    if (!response.ok) {
-        return response.text().then(text => { throw new Error(text); });
+<script>
+     function likePost(postId) {
+        fetch('/likePost', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'post_id=' + encodeURIComponent(postId)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                // Find the button and update its text
+                const likeButton = document.querySelector(`button[onclick="likePost('${postId}')"]`);
+                if (likeButton) {
+                    likeButton.innerText = data.action === 'liked' ? 'Unlike' : 'Like';
+                    // Optionally, update the likes count in the button text
+                    const likesCount = parseInt(likeButton.innerText.match(/\d+/)[0]) || 0;
+                    likeButton.innerText = `${data.action === 'liked' ? 'Unlike' : 'Like'} (${data.action === 'liked' ? likesCount + 1 : likesCount - 1})`;
+                }
+            } else {
+                throw new Error(data.message || 'Error processing request');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error: ' + error.message);
+        });
     }
-    return response.json();
-})
-.then(data => {
-    if (data.status === 'success') {
-        // Find the button and update its text
-        const likeButton = document.querySelector(`button[onclick="likePost('${postId}')"]`);
-        if (likeButton) {
-            likeButton.innerText = data.action === 'liked' ? 'Unlike' : 'Like';
-            // Optionally, update the likes count in the button text
-            const likesCount = parseInt(likeButton.innerText.match(/\d+/)[0]) || 0;
-            likeButton.innerText = `${data.action === 'liked' ? 'Unlike' : 'Like'} (${data.action === 'liked' ? likesCount + 1 : likesCount - 1})`;
+    
+    function updatePageContent(data) {
+        const postsNumElement = document.getElementById('postsNum');
+        if (postsNumElement) {
+            postsNumElement.innerText = data.postsNum;
         }
-    } else {
-        throw new Error(data.message || 'Error processing request');
+    
+        const userPostsList = document.getElementById('user_posts_list');
+        if (userPostsList) {
+            userPostsList.innerHTML = '';
+            data.user_posts_list.forEach(post => {
+                const listItem = document.createElement('li');
+                const likeButtonText = post.user_liked ? 'Unlike' : 'Like';
+                listItem.innerHTML = `<div>Title: ${post.title}<br>Content: ${post.content}</div> 
+                                      <button onclick="likePost('${post._id}')">${likeButtonText} (${post.likes.length})</button>`;
+                userPostsList.appendChild(listItem);
+            });
+        }
     }
-})
-.catch(error => {
-    console.error('Error:', error);
-    alert('Error: ' + error.message);
-});
-}
-
-function updatePageContent(data) {
-const postsNumElement = document.getElementById('postsNum');
-if (postsNumElement) {
-    postsNumElement.innerText = data.postsNum;
-}
-
-const userPostsList = document.getElementById('user_posts_list');
-if (userPostsList) {
-    userPostsList.innerHTML = '';
-    data.user_posts_list.forEach(post => {
-        const listItem = document.createElement('li');
-        const likeButtonText = post.user_liked ? 'Unlike' : 'Like';
-        listItem.innerHTML = `<div>Title: ${post.title}<br>Content: ${post.content}</div> 
-                              <button onclick="likePost('${post._id}')">${likeButtonText} (${post.likes.length})</button>`;
-        userPostsList.appendChild(listItem);
-    });
-}
-}
+    </script>
 </script>
 
 </body>
